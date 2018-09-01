@@ -1,0 +1,6 @@
+node_modules
+qiniuBar-darwin-x64
+.idea
+.vscode
+yarn-error.log
+.DS_Store

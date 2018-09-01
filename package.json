@@ -1,0 +1,20 @@
+{
+  "name": "qiniubar",
+  "version": "1.0.0",
+  "description": "a menubar electron app for qiniu",
+  "dependencies": {
+    "electron-store": "^2.0.0",
+    "menubar": "^5.2.3",
+    "node-notifier": "^5.2.1",
+    "qiniu": "^7.2.1"
+  },
+  "devDependencies": {
+    "electron-packager": "^5.1.0",
+    "electron-prebuilt": "^0.36.0"
+  },
+  "main": "main.js",
+  "scripts": {
+    "build": "electron-packager ./ QiniuBar --platform=darwin --arch=x64 --version=2.0.8 --icon=Icon.icns",
+    "start": "electron ."
+  }
+}
