@@ -7,26 +7,28 @@ const store = new Store()
 const { ipcMain, clipboard } = require('electron')
 
 const mb = menubar({
-	index: path.join('file://', __dirname, 'index.html'),
-	width: 350,
-	height: 260
+  index: path.join('file://', __dirname, 'index.html'),
+  width: 350,
+  height: 260
 })
 
-mb.on('ready', function ready () {
-  mb.tray.on('drop-files', function (event, files) {
+mb.on('ready', function ready() {
+  mb.tray.on('drop-files', function(event, files) {
     if (!files || files.length === 0) return
     uploadFile(files[0])
   })
 })
 
 ipcMain.on('async', (event, arg) => {
-  event.sender.send('async-reply', JSON.stringify({
+  event.sender.send(
+    'async-reply',
+    JSON.stringify({
       ak: store.get('ak'),
       sk: store.get('sk'),
       bucket: store.get('bucket')
-  }))
+    })
+  )
 })
-
 
 exports.onClick = (ak, sk, bucket) => {
   store.set('ak', ak)
@@ -39,19 +41,23 @@ function uploadFile(path) {
   const secretKey = store.get('sk')
   const mac = new qiniu.auth.digest.Mac(accessKey, secretKey)
   const options = {
-    scope: store.get('bucket'),
+    scope: store.get('bucket')
   }
   const putPolicy = new qiniu.rs.PutPolicy(options)
-  const uploadToken=putPolicy.uploadToken(mac)
+  const uploadToken = putPolicy.uploadToken(mac)
   const localFile = path
   const config = new qiniu.conf.Config()
   config.zone = qiniu.zone.Zone_z0
   const formUploader = new qiniu.form_up.FormUploader(config)
   const putExtra = new qiniu.form_up.PutExtra()
   const fileType = path.split('.')[path.split('.').length - 1]
-  const key= Date.now() + '.' + fileType
+  const key = Date.now() + '.' + fileType
 
-  formUploader.putFile(uploadToken, key, localFile, putExtra, function(respErr, respBody, respInfo) {
+  formUploader.putFile(uploadToken, key, localFile, putExtra, function(
+    respErr,
+    respBody,
+    respInfo
+  ) {
     if (respErr) {
       throw respErr
     }
