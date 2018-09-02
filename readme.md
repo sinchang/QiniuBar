@@ -10,6 +10,10 @@
 - secretKey
 - bucket
 
+## Tips
+
+- use `command + q` to quit app.
+
 ## Development
 
 - run `npm install`

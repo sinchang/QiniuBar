@@ -3,18 +3,27 @@
   "version": "1.0.0",
   "description": "a menubar electron app for qiniu",
   "dependencies": {
+    "electron-notify": "^0.1.0",
     "electron-store": "^2.0.0",
     "menubar": "^5.2.3",
-    "node-notifier": "^5.2.1",
     "qiniu": "^7.2.1"
   },
   "devDependencies": {
-    "electron-packager": "^5.1.0",
-    "electron-prebuilt": "^0.36.0"
+    "electron-builder": "^20.28.3"
   },
+  "author": "sinchang",
   "main": "main.js",
   "scripts": {
-    "build": "electron-packager ./ QiniuBar --platform=darwin --arch=x64 --version=2.0.8 --icon=Icon.icns",
-    "start": "electron ."
+    "postinstall": "electron-builder install-app-deps",
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "ocom.electron.QiniuBar",
+    "mac": {
+      "category": "public.app-category.productivity"
+    },
+    "electronVersion": "2.0.8"
   }
 }

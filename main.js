@@ -1,11 +1,10 @@
 const menubar = require('menubar')
 const path = require('path')
 const qiniu = require('qiniu')
-const notifier = require('node-notifier')
 const Store = require('electron-store')
 const store = new Store()
-const { ipcMain, clipboard } = require('electron')
-
+const { ipcMain, clipboard, Menu } = require('electron')
+let notifier
 const mb = menubar({
   index: path.join('file://', __dirname, 'index.html'),
   width: 350,
@@ -13,10 +12,23 @@ const mb = menubar({
 })
 
 mb.on('ready', function ready() {
+  notifier = require('electron-notify')
+  notifier.setConfig({
+    displayTime: 2000
+  })
+
   mb.tray.on('drop-files', function(event, files) {
-    if (!files || files.length === 0) return
+    if (
+      !files ||
+      files.length === 0 ||
+      !store.get('ak') ||
+      !store.get('sk') ||
+      !store.get('bucket')
+    )
+      return
     uploadFile(files[0])
   })
+  createMenu()
 })
 
 ipcMain.on('async', (event, arg) => {
@@ -67,11 +79,69 @@ function uploadFile(path) {
       clipboard.writeText(url)
       notifier.notify({
         title: 'QiniuBar',
-        message: 'Congrats, file url already in clipboard!'
+        text: 'Congrats, file url already in clipboard!'
       })
     } else {
       console.log(respInfo.statusCode)
       console.log(respBody)
     }
   })
+}
+
+function createMenu() {
+  const application = {
+    label: 'Application',
+    submenu: [
+      {
+        label: 'Quit',
+        accelerator: 'Command+Q',
+        click: () => {
+          mb.app.quit()
+        }
+      }
+    ]
+  }
+
+  const edit = {
+    label: 'Edit',
+    submenu: [
+      {
+        label: 'Undo',
+        accelerator: 'CmdOrCtrl+Z',
+        selector: 'undo:'
+      },
+      {
+        label: 'Redo',
+        accelerator: 'Shift+CmdOrCtrl+Z',
+        selector: 'redo:'
+      },
+      {
+        type: 'separator'
+      },
+      {
+        label: 'Cut',
+        accelerator: 'CmdOrCtrl+X',
+        selector: 'cut:'
+      },
+      {
+        label: 'Copy',
+        accelerator: 'CmdOrCtrl+C',
+        selector: 'copy:'
+      },
+      {
+        label: 'Paste',
+        accelerator: 'CmdOrCtrl+V',
+        selector: 'paste:'
+      },
+      {
+        label: 'Select All',
+        accelerator: 'CmdOrCtrl+A',
+        selector: 'selectAll:'
+      }
+    ]
+  }
+
+  const template = [application, edit]
+
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 }
